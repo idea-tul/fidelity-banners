@@ -1,0 +1,45 @@
+{
+  "name": "client-name",
+  "title": "{{Project Name}}",
+  "description": "",
+  "author": "Idea Ranch",
+  "version": "0.1.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "gitlab-repository"
+  },
+  "scripts": {
+    "dev": "npm run process-templates && vite",
+    "dev:banner": "npm run process-templates && node build-scripts/dev-banner.js start",
+    "dev:list": "node build-scripts/dev-banner.js list",
+    "build": "npm run process-templates && vite build",
+    "build:banner": "npm run process-templates && vite build",
+    "preview": "vite preview",
+    "process-templates": "node build-scripts/template-processor.js",
+    "generate:banners": "node build-scripts/banner-generator.js generate",
+    "generate:standard": "node build-scripts/banner-generator.js standard",
+    "banners:list": "node build-scripts/banner-generator.js list",
+    "banners:cleanup": "node build-scripts/banner-generator.js cleanup",
+    "review": "npm run build && node build-scripts/review-generator.js",
+    "deploy": "npm run build && node build-scripts/banner-deploy.js",
+    "deploy:clean": "node build-scripts/banner-deploy.js clean",
+    "watch": "npm run dev",
+    "start": "npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "find node_modules/ -name '*.info' -type f -delete"
+  },
+  "dependencies": {
+    "archiver": "^6.0.1",
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "postcss-advanced-variables": "^3.0.1",
+    "postcss-calc": "^9.0.1",
+    "postcss-position-alt": "^0.6.3",
+    "postcss-sorting": "^8.0.2"
+  }
+}

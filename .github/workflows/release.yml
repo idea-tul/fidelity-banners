@@ -1,0 +1,124 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag name for the release"
+        required: true
+        default: "v1.0.0"
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        working-directory: ./tex25830
+        run: npm install
+
+      - name: Build banners for release
+        working-directory: ./tex25830
+        run: |
+          npm run process-templates
+          npm run build
+          npm run review
+          npm run deploy
+
+      - name: Get project info
+        id: project_info
+        working-directory: ./tex25830
+        run: |
+          PROJECT_NAME=$(node -p "require('./package.json').name")
+          PROJECT_TITLE=$(node -p "require('./package.json').title")
+          echo "name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+          echo "title=$PROJECT_TITLE" >> $GITHUB_OUTPUT
+
+      - name: Create release archive
+        run: |
+          # Create a comprehensive release package
+          mkdir -p release-package
+
+          # Copy deployment zips
+          cp -r tex25830/_deploy release-package/deployment-zips
+
+          # Copy review site
+          cp -r tex25830/_review release-package/review-site
+
+          # Copy source files (for reference)
+          mkdir -p release-package/source
+          cp -r tex25830/banners release-package/source/
+          cp tex25830/package.json release-package/source/
+          cp tex25830/BUILD_MIGRATION.md release-package/
+
+          # Create main archive
+          cd release-package
+          zip -r "../${{ steps.project_info.outputs.name }}-release.zip" .
+          cd ..
+
+          # Create individual deployment archive
+          cd tex25830/_deploy
+          zip -r "../../${{ steps.project_info.outputs.name }}-deployment.zip" .
+          cd ../..
+
+      - name: Get tag name
+        id: tag_name
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag_name.outputs.tag }}
+          name: "Banner Release ${{ steps.tag_name.outputs.tag }}"
+          body: |
+            ## 🎨 Banner Release: ${{ steps.project_info.outputs.title }}
+
+            This release contains production-ready banner assets and deployment files.
+
+            ### 📦 What's Included:
+
+            **`${{ steps.project_info.outputs.name }}-deployment.zip`**
+            - Individual banner ZIP files ready for ad platform upload
+            - Optimized for IAB specifications
+            - File size validation included
+
+            **`${{ steps.project_info.outputs.name }}-release.zip`**
+            - Complete release package including:
+              - Deployment ZIP files
+              - Review site (open `review-site/index.html` to preview)
+              - Source banner files
+              - Build documentation
+
+            ### 🚀 Quick Start:
+            1. Download `${{ steps.project_info.outputs.name }}-deployment.zip`
+            2. Extract individual banner ZIP files
+            3. Upload to your ad platform (DoubleClick, Sizmek, etc.)
+
+            ### 📊 Banner Summary:
+            - Built with modern Vite build system
+            - PostCSS processed styles
+            - Template variables resolved
+            - File size optimized
+
+            Generated on: ${{ github.run_id }}
+          files: |
+            ${{ steps.project_info.outputs.name }}-release.zip
+            ${{ steps.project_info.outputs.name }}-deployment.zip
+          draft: false
+          prerelease: false

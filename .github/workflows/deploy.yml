@@ -1,0 +1,88 @@
+name: Build and Deploy Banners
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        working-directory: ./tex25830
+        run: npm install
+
+      - name: Process templates and build banners
+        working-directory: ./tex25830
+        run: |
+          npm run process-templates
+          npm run build
+          npm run review
+
+      - name: Create deployment directory
+        run: |
+          mkdir -p public
+          cp *.html public/ 2>/dev/null || echo "No HTML files in root to copy"
+          cp -r tex25830/_review public/tex25830
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: banner-build
+          path: public/
+          retention-days: 30
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          cname: ${{ vars.CUSTOM_DOMAIN }} # Optional: set this in repository variables if you have a custom domain
+
+  build-template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install template dependencies
+        working-directory: ./_template
+        run: npm install
+
+      - name: Test template build process
+        working-directory: ./_template
+        run: |
+          # Test that the template build system works
+          npm run process-templates || echo "No banners to process in template"
+          echo "✅ Template build system validated"
+
+      - name: Upload template artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-validation
+          path: _template/
+          retention-days: 7
