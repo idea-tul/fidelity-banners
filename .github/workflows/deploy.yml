@@ -26,11 +26,11 @@ jobs:
           node-version: "18"
 
       - name: Install dependencies
-        working-directory: ./tex25830
+        working-directory: ./fid26000
         run: npm install
 
       - name: Process templates and build banners
-        working-directory: ./tex25830
+        working-directory: ./fid26000
         run: |
           npm run process-templates
           npm run build
@@ -40,7 +40,7 @@ jobs:
         run: |
           mkdir -p public
           cp *.html public/ 2>/dev/null || echo "No HTML files in root to copy"
-          cp -r tex25830/_review public/tex25830
+          cp -r fid26000/_review public/fid26000
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

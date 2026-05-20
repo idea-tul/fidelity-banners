@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="ad.size" content="width=300, height=250" />
+    <title>Ad Banner: 300x250</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script>
+      var clickTag = "https://www.fidelitybank.com/";
+    </script>
+  </head>
+  <body>
+    <div id="ad">
+      <button id="clickthrough-button" class="btn-overlay"></button>
+      <div class="banner" style="display: none">
+        <div class="frame" id="frame1">
+      <img class="bg" style="z-index:1" src="assets/img/bg.png" alt="" />
+      <div class="red-bar" style="z-index:2"></div>
+      <img class="logo" style="z-index:3" src="assets/img/logo.png" alt="Fidelity Bank" />
+      <img class="fdic" style="z-index:4" src="assets/img/fdic.png" alt="" />
+      <img class="cta" style="z-index:5" src="assets/img/cta.png" alt="Learn more" />
+      <p class="nmls" style="z-index:6">NMLS 419266</p>
+      <img class="headline headline-1" style="z-index:7" src="assets/img/headline-1.png" alt="Fidelity Bank" />
+      <img class="headline headline-2" style="z-index:8" src="assets/img/headline-2.png" alt="Fidelity Bank" />
+      <img class="headline headline-3" style="z-index:7" src="assets/img/headline-3.png" alt="Fidelity Bank" />
+      <img class="headline headline-4" style="z-index:8" src="assets/img/headline-4.png" alt="Fidelity Bank" />
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- {inject:ad-platform-lib-url} -->
+    <script src="assets/js/script.js"></script>
+    <!-- {inject:banner-controls} -->
+  </body>
+</html>
