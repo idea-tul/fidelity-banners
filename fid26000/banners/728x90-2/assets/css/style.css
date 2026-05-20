@@ -1,0 +1,146 @@
+/* Edit styles in source.css; style.css is generated. */
+*, *:before, *:after { box-sizing: border-box; }
+
+#ad {
+  display: block;
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  margin: auto;
+  width: 728px;
+  height: 90px;
+  background: #fff;
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn-overlay {
+  display: block;
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+.btn-overlay:before {
+  content: "";
+  position: absolute;
+  z-index: 99;
+  inset: 0;
+  border: 1px solid #666;
+}
+
+.banner {
+  position: relative;
+  width: 728px;
+  height: 90px;
+  background: #fff;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.frame > img,
+.frame > div,
+.frame > p {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.frame .bg {
+  left: 0px;
+  top: 0px;
+  width: 244px;
+  height: 90px;
+}
+
+.frame .bg-shadow {
+  left: 0px;
+  top: 0px;
+  width: 122px;
+  height: 90px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), transparent);
+}
+
+.frame .divider {
+  left: 551px;
+  top: 8px;
+  width: 1px;
+  height: 74px;
+}
+
+.frame .logo {
+  left: 591px;
+  top: 5px;
+  width: 105px;
+  height: 36px;
+}
+
+.frame .fdic {
+  left: 10px;
+  top: 9px;
+  width: 52px;
+  height: 55px;
+}
+
+.frame .cta {
+  left: 587px;
+  top: 55px;
+  width: 115px;
+  height: 23px;
+}
+
+.frame .nmls {
+  left: 10px;
+  top: 68px;
+  width: 52px;
+  height: 15px;
+  color: #ffffff;
+  font-size: 10px;
+  font-family: "Univers LT Std", "Helvetica Neue Condensed", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.frame .headline-1 {
+  left: 267px;
+  top: 10px;
+  width: 258px;
+  height: 72px;
+}
+
+.frame .headline-2 {
+  left: 295px;
+  top: 16.5px;
+  width: 202px;
+  height: 59px;
+}
+
+.frame .headline-3 {
+  left: 293px;
+  top: 16.5px;
+  width: 206px;
+  height: 59px;
+}
+
+.frame .headline-4 {
+  left: 285px;
+  top: 16.5px;
+  width: 222px;
+  height: 59px;
+}
+

@@ -1,11 +1,11 @@
 # Agent guide: Figma → banner build pipeline
 
-This repo turns Figma ad designs into static HTML/CSS/JS banners (Vite + GSAP). The Figma → banner mapping is **not** part of the project's built-in tooling — it lives in `.context/` and was built ad-hoc to handle a single recruitment campaign (`tex25830`). Treat it as an authoring helper, not part of the deploy pipeline.
+This repo turns Figma ad designs into static HTML/CSS/JS banners (Vite + GSAP). The Figma → banner mapping is **not** part of the project's built-in tooling — it lives in `.context/` and was built ad-hoc to handle a single recruitment campaign (`fid26000`). Treat it as an authoring helper, not part of the deploy pipeline.
 
 ## Directory map
 
-- `tex25830/banners/<size>-<variant>/` — one folder per banner. Standard layout: `index.html`, `fallback.jpg`, `assets/{css,js,img}/`. Names use `300x250-1`, `300x250-2`, etc. (the Vite config + `banner-generator.js` rely on the `WIDTHxHEIGHT` prefix).
-- `tex25830/banners/_banner-template/` — reference banner used by `npm run generate:banners`. Don't break it.
+- `fid26000/banners/<size>-<variant>/` — one folder per banner. Standard layout: `index.html`, `fallback.jpg`, `assets/{css,js,img}/`. Names use `300x250-1`, `300x250-2`, etc. (the Vite config + `banner-generator.js` rely on the `WIDTHxHEIGHT` prefix).
+- `fid26000/banners/_banner-template/` — reference banner used by `npm run generate:banners`. Don't break it.
 - `.context/` — agent workspace. `gitignored`. Holds the manifest and build script described below.
 - `.context/banner-manifest.json` — every banner's layer specs (Figma asset URLs, positions, sizes).
 - `.context/build-banners.js` — Node script that reads the manifest and writes each banner folder.
@@ -115,17 +115,17 @@ If you remove the legacy path, also remove the `headline` (string array), `headl
 
 ## Old folders to delete on a fresh campaign
 
-The repo started with `300x50`, `970x90`, `970x250` from a prior campaign that have no Figma equivalent in `tex25830`. They were deleted. If the next campaign brings them back, add manifest entries — don't reuse the old static folders.
+The repo started with `300x50`, `970x90`, `970x250` from a prior campaign that have no Figma equivalent in `fid26000`. They were deleted. If the next campaign brings them back, add manifest entries — don't reuse the old static folders.
 
 ## Verifying changes
 
 ```bash
-cd tex25830
+cd fid26000
 npm run review              # builds + writes _review/index.html (iframe grid)
 npm run preview             # serves _review at http://localhost:4173
 ```
 
-For a single banner without the Vite build step, open `tex25830/banners/<name>/index.html` directly in a browser. Animations play on load.
+For a single banner without the Vite build step, open `fid26000/banners/<name>/index.html` directly in a browser. Animations play on load.
 
 The fallback `.jpg` in each folder is the source of truth for "what should this look like statically." Compare against Figma screenshots when verifying.
 

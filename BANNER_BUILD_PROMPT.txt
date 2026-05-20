@@ -1,0 +1,392 @@
+================================================================================
+FIGMA → HTML5 BANNERS — REPLICATION PROMPT
+================================================================================
+
+Use this when you start a new campaign. Paste the section labelled "PROMPT FOR
+CLAUDE" below into a fresh conversation, fill in the bracketed inputs, and the
+agent should reproduce the working pipeline on the first try without
+re-discovering the gotchas captured here.
+
+The "PIPELINE NOTES" section after the prompt explains the *why* behind each
+instruction. Keep it next to the prompt as reference if you want to extend the
+pipeline later.
+
+================================================================================
+INPUTS — fill these in before sending
+================================================================================
+
+CAMPAIGN_CODE:        e.g. fid26000
+PREVIOUS_CAMPAIGN:    e.g. tex25830 (the folder name currently in the repo, to
+                      be renamed)
+FIGMA_FILE_KEY:       e.g. hn5Qq6C2opWxEe2rouFGrk (the segment between
+                      /design/ and the next slash in the Figma URL)
+FIGMA_FRAME_NODE_IDS: comma-separated list, e.g.
+                      38-1910, 38-2247, 42-2982, 39-2708, 42-3459, ...
+                      (one per banner frame; usually 16 = 4 sizes × 4 themes)
+THEME_NUMBERING:      how variant numbers map to themes, e.g.
+                      "1=First-time home-buyer, 2=Umbrella, 3=Move-up, 4=Remodel"
+CLICKTHROUGH_URL:     default https://www.fidelitybank.com/
+FONT_FILE_PATHS:      paths to the campaign's display font files (.otf/.ttf)
+                      e.g. ~/Library/Fonts/UniversLTStd-UltraCn.otf,
+                           ~/Library/Fonts/UniversLTStd-Cn.otf
+
+================================================================================
+PROMPT FOR CLAUDE  ← copy from here to the next divider
+================================================================================
+
+You are setting up an HTML5 banner build pipeline for a new ad campaign.
+
+INPUTS
+  CAMPAIGN_CODE        = <fill in>
+  PREVIOUS_CAMPAIGN    = <fill in>
+  FIGMA_FILE_KEY       = <fill in>
+  FIGMA_FRAME_NODE_IDS = <fill in>
+  THEME_NUMBERING      = <fill in>
+  CLICKTHROUGH_URL     = <fill in>
+  FONT_FILE_PATHS      = <fill in>
+
+Read AGENTS.md and the existing PREVIOUS_CAMPAIGN folder for the build pattern
+(Vite + GSAP + sharp). The campaign uses an authoring pipeline in .context/
+(banner-manifest.json + build-banners.js) that is gitignored — recreate it from
+scratch if it doesn't exist.
+
+PROCEED IN THIS EXACT ORDER. Do not skip steps. Most "obvious shortcuts" were
+already tried and broke things — the order below is load-bearing.
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 1 — Rename the campaign folder
+────────────────────────────────────────────────────────────────────────────────
+1. `git mv PREVIOUS_CAMPAIGN CAMPAIGN_CODE` and
+   `git mv PREVIOUS_CAMPAIGN.html CAMPAIGN_CODE.html` if that file exists at
+   the repo root.
+2. Grep the repo for the old campaign name and replace every occurrence with
+   CAMPAIGN_CODE. Expected hits:
+     - `.github/workflows/deploy.yml`
+     - `.github/workflows/pr-preview.yml`
+     - `.github/workflows/release.yml`
+     - `AGENTS.md` (use replace_all)
+   Don't touch the `25-tac25027` package name in
+   CAMPAIGN_CODE/package.json — it's a vestigial legacy name unrelated to the
+   campaign folder.
+3. Verify with a final grep — there should be zero remaining mentions of
+   PREVIOUS_CAMPAIGN.
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 2 — Pull Figma metadata for every requested frame
+────────────────────────────────────────────────────────────────────────────────
+4. Call `mcp__figma__get_metadata` for the page (no node id) once to confirm
+   you have the right file.
+5. For each frame in FIGMA_FRAME_NODE_IDS, build a structural map of the
+   children. The full page metadata is huge — if `get_metadata` returns a
+   file-too-large error, delegate the parse to a subagent with the saved
+   tool-results path and ask for a per-frame layer report.
+6. WATCH OUT: Figma frames named "300x250" sometimes have actual dimensions of
+   320×50 (or other size mismatches). Trust the bbox, not the name.
+7. Each banner typically has these layers, with these LAYER NAMES IN FIGMA:
+     - `AdobeStock_<id>` (ROUNDED-RECTANGLE)  → bg image
+     - `red bar` or `red rectangle` (FRAME)   → footer / accent stripe
+     - `Fidelity Logo` (FRAME)                → logo lockup (vector)
+     - `CTA BUTTON` (FRAME with child TEXT)   → CTA
+     - `FDIC EHL NMLS` or `Group N` (FRAME)   → FDIC+NMLS lockup
+     - one or more TEXT nodes                 → headline(s)
+     - `Vector 1` (VECTOR)                    → vertical divider on
+                                                 leaderboard-shaped banners
+   Optional / less common: dual logo splits (`logo1`/`logo2`), dual photo splits
+   (`image1`/`image2`).
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 3 — Confirm naming + cleanup plan with the user
+────────────────────────────────────────────────────────────────────────────────
+8. Map node IDs to folder names. Convention: `WIDTHxHEIGHT-N` where N maps to
+   the theme per THEME_NUMBERING.
+9. Identify any banner folders in the campaign directory that don't have a
+   Figma equivalent (the previous campaign may have had sizes Figma doesn't
+   ship — 1024x768, 160x600, 320x480, 336x280, 480x320, 768x1024 are common
+   stragglers). LIST THEM AND ASK BEFORE DELETING.
+10. Confirm with the user: (a) folder naming mapping, (b) which legacy folders
+    to delete, (c) any frames where text lives outside the frame (e.g. Remodel
+    300x600 BUILD/YOUR/DREAM/KITCHEN are parented to the section, not the frame
+    — flag this so the user knows the text won't appear inside that frame's
+    `get_design_context` output).
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 4 — Headline + CTA text rendering strategy
+────────────────────────────────────────────────────────────────────────────────
+11. RECOMMENDED: use Figma's `mcp__figma__get_screenshot` with
+    `contentsOnly: true` for every headline and CTA text node. Figma renders
+    each text node with its full effects (drop shadow, kerning, exact font)
+    and returns a transparent PNG. This is the path the working fid26000
+    build uses — it guarantees the font matches the design exactly and the
+    drop shadows are baked in. The trade-off is 1× resolution, which on
+    retina displays looks slightly soft but matches what every other ad
+    network deploys.
+12. If you want retina-sharp text (renders text locally as SVG), be aware of
+    librsvg/Pango font-resolution traps that were investigated and not
+    fully solved in fid26000:
+      - Subfamily-distinct fonts (e.g. Univers LT Std ships as `57 Cn` and
+        `59 UltraCn` files) can't be disambiguated from SVG's font-family
+        attribute. fc-match for "Univers LT Std" resolves to 57 Cn — the
+        WRONG face if Figma designed with UC. Passing the full subfamily
+        name `"Univers LT Std 59 UltraCn"` makes Pango fall back to a serif
+        default. Workarounds: install the OTF under a unique family name
+        (rename via fontforge or fonttools), or use a different SVG
+        renderer such as resvg-js that honors `@font-face` data-URLs.
+      - NEVER set `font-weight` in the SVG for a font that doesn't have a
+        Bold face. Pango silently falls back to serif Times if the requested
+        weight isn't available. Univers UC files are tagged "Regular" weight
+        even though they look visually heavy.
+      - `font-stretch="ultra-condensed"` is parsed by Pango as a separate
+        font description and doesn't help reach the UC subfamily.
+    If local rendering is required, BUDGET A DAY to solve the font
+    installation problem properly. The screenshot path (Phase 4 step 11) is
+    almost always the better answer.
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 5 — Re-create .context/build-banners.js + banner-manifest.json
+────────────────────────────────────────────────────────────────────────────────
+14. The previous workspace's .context/ is gitignored and usually empty in a
+    fresh checkout. Recreate from the spec in AGENTS.md. Initialize
+    `.context/package.json` with `{ "type": "module", "dependencies": {
+    "sharp": "^0.33" } }` and `npm install` once. (sharp also covers SVG → PNG
+    raster output via librsvg.)
+15. Manifest schema (per banner):
+       {
+         name: "300x250-1",
+         size: [W, H],
+         theme: "<theme key>",
+         nodeId: "<figma id>",
+         layers: [
+           { role: "bg",            file: ".context/figma-cache/...", pos:[x,y], size:[w,h], nativeSize:[w,h] },
+           { role: "redBar",        type: "css", color: "#b12024", opacity: 0.75, pos:[...], size:[...] },
+           { role: "fidelityLogo",  file: ".context/figma-cache/...", pos:[...], size:[...] },
+           { role: "fdicEhl",       file: ".context/figma-cache/...", pos:[...], size:[...] },
+           { role: "cta",           file: ".context/figma-cache/...", pos:[...], size:[...], text: {…} },
+           { role: "nmls",          type: "css", text: "NMLS 419266", pos:[...], size:[...], color:"#ffffff", fontSize:10 },
+           { role: "headline",      file: ".context/figma-cache/...", pos:[...], size:[...], text: {…} },
+           // optional: divider (vertical separator), logo1/logo2, image1/image2
+         ]
+       }
+    For headline/cta layers, include a `text` object:
+       text: {
+         content: "BUILD",
+         fontFamily: "<the unique installed font family name from Phase 4>",
+         fontSize: 45.943,        // from text-[Npx] in design_context
+         color: "#ffffff",
+         tracking: -0.4594,       // from tracking-[Npx]
+         lineHeight: 39.051,      // from leading-[Npx]
+         uppercase: true,
+         textAlign: "left",       // "right" when Figma uses text-right + -translate-x-full
+         dropShadow: { offsetX: 0, offsetY: 0, blur: 13.39, color: "rgba(0,0,0,0.5)" } // or null
+         // CTAs additionally:
+         bgColor: "#b12024",
+         bgOpacity: 0.75,
+         borderRadius: 0
+       }
+    DO NOT include `font-weight` in the manifest unless you're sure the bold
+    face is installed under that family name — see Phase 4 step 13.
+16. Build-script architecture (the working version is in
+    .context/build-banners.js):
+      - `SCALE = 2` (retina baseline)
+      - `renderImage(src, out, w, h, role)` for raster/vector layers; uses
+        `fit: "cover"` for bg layers (raw AdobeStock JPEGs are 4096×2733 and
+        would otherwise stretch to fit), `fit: "fill"` for everything else.
+      - `buildTextSvg(layer)` for headline/cta layers — emit an SVG with
+        proper drop shadow filter, render via `sharp(svgBuf, { density:288 })`
+        then resize to `2×svgW × 2×svgH`. Track shadow padding so the layer
+        position offsets back to the original text bbox.
+      - `buildFallback()` composites everything into a fallback.jpg. Layers
+        with shadow padding can extend outside the canvas — extract the
+        in-bounds rect with sharp's `.extract()` BEFORE composite. Don't try
+        `.composite().extract()` — sharp evaluates extract first which clips
+        the canvas before layers land.
+17. CLI: `node build-banners.js` (all) or `node build-banners.js --only=300x250-1`.
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 6 — Pull Figma assets (cache to .context/figma-cache/)
+────────────────────────────────────────────────────────────────────────────────
+18. For each layer role except headline/cta-text:
+      - `mcp__figma__get_design_context` on the banner frame ONCE to grab the
+        full code block. From it, extract every `imgFoo` asset URL and any
+        position/size/effect details you'll need later.
+      - The asset URL has the form `https://www.figma.com/api/mcp/asset/<uuid>`
+        and is good for 7 days. Download with curl. The returned file is
+        usually SVG even when the URL "looks like" a PNG — sharp resolves
+        this from headers when reading.
+      - For bg images: the URL returns the FULL ORIGINAL AdobeStock image
+        (often 4096×2733 JPEG). Don't squish it to layer bounds — the build
+        script's `fit: "cover"` is what makes the crop work.
+19. For headline + CTA text labels: skip the asset URL. Either render locally
+    from the text spec (preferred — retina-crisp) or capture screenshots.
+    If using screenshots, use `mcp__figma__get_screenshot` with
+    `contentsOnly: true` — without that flag, white text on bright
+    backgrounds returns a 100% pure-white PNG (Figma renders the text against
+    the parent frame's white context and the two collapse). `contentsOnly`
+    isolates the text node and leaves a transparent background.
+20. `maxDimension` on the screenshot tool is an UPPER BOUND only. Figma does
+    not upscale beyond native design size, so text screenshots are 1× and
+    look soft on retina. There is no `?scale=N` URL parameter — it's ignored.
+    Local SVG rendering is the only path to retina-sharp text.
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 7 — Build + sanity check
+────────────────────────────────────────────────────────────────────────────────
+21. `cd .context && node build-banners.js` — should print one line per banner
+    with no errors. Common build failures:
+      - "Image to composite must have same dimensions or smaller" → a shadow-
+        padded headline PNG is larger than the banner canvas. Crop with
+        sharp's `.extract()` before composite.
+      - "extract_area: bad extract area" → the bg crop ran outside the source
+        image. Re-check `fit: "cover"` and the canvas dimensions.
+22. Open each banner's fallback.jpg and compare to a screenshot of the same
+    Figma frame (use `mcp__figma__get_screenshot` with no `contentsOnly`).
+    Specifically check:
+      - Headline text fits inside its bbox (no clipping at right edge — if
+        you see "BUIL" instead of "BUILD", Phase 4 went wrong).
+      - Headlines stacked side-by-side don't overlap (tight bbox packing in
+        300x250-Remodel: BUILD bbox ends at x=99, YOUR bbox starts at x=105,
+        only 6px gap — Univers UC fits naturally; other fonts will collide).
+      - Drop shadows are present on banners where Figma's design_context
+        included `text-shadow-[…]` on the text node. Umbrella headlines
+        (`move in. / move UP. / REMODEL.`) explicitly have no shadow in
+        Figma — that's a designer choice, not a bug.
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 8 — Vite preview
+────────────────────────────────────────────────────────────────────────────────
+23. ALWAYS `rm -rf CAMPAIGN_CODE/_review/` before `npm run review`. Vite caches
+    built assets by content hash and serves stale entries from `_review/` even
+    after the source updates if you don't purge.
+24. `cd CAMPAIGN_CODE && npm run review` builds the multi-banner review page.
+25. `npm run preview` serves it locally — open the URL it prints.
+
+────────────────────────────────────────────────────────────────────────────────
+PHASE 9 — Iteration etiquette
+────────────────────────────────────────────────────────────────────────────────
+26. When the user requests visual changes, edit the manifest + rebuild — do
+    NOT edit the generated `assets/img/*.png` or `style.css` directly; they
+    are overwritten on every build.
+27. When the user adds a new font during the session: re-run `fc-list` and
+    `fc-match -v "<family name>"` to confirm Pango sees it. The build script
+    won't pick up new fonts until they're indexed; fontconfig usually picks
+    them up automatically but `fc-cache -f -r` forces a rebuild.
+28. After every Figma redesign cycle: asset URLs change, so the cached
+    .context/figma-cache/ entries go stale. Re-fetch design_context for each
+    banner and update the manifest. If a banner's bbox moved, update both
+    `pos` and `size`.
+
+ASK QUESTIONS, DON'T ASSUME. Specifically ask before:
+  - Deleting any banner folders that look unrelated to the new campaign.
+  - Renaming folders or files outside the campaign directory.
+  - Choosing a font fallback strategy when the campaign font has a subfamily-
+    distinct file (this can silently degrade quality without erroring).
+  - Picking which banner gets which numeric variant (themes have an order
+    convention that should be explicit, not inferred).
+
+================================================================================
+END PROMPT  ← stop copying here
+================================================================================
+
+
+================================================================================
+PIPELINE NOTES — context for the prompt above
+================================================================================
+
+WHY THE PROMPT IS THIS LONG
+  Every "watch out" note in the prompt corresponds to a real failure mode hit
+  during the fid26000 → tex25830 build. Removing any of them re-introduces a
+  bug class:
+
+  - The `contentsOnly: true` rule (Phase 6 step 19) addresses headlines that
+    came back as a 100%-opaque white PNG for the Umbrella theme. Without that
+    flag, Figma renders white text against its parent's white background and
+    the resulting screenshot has zero transparency.
+
+  - The `fit: "cover"` rule for bgs (Phase 5 step 16) addresses 4096×2733
+    AdobeStock JPEGs getting squished into 300×250 banner canvases. `fit:
+    "fill"` distorted everything; `cover` keeps the aspect.
+
+  - The font-weight ban (Phase 4 step 13) addresses Pango silently falling
+    back to a SERIF when you ask for a bold variant of Univers UC. The face
+    file is tagged as Regular weight (because there's no Bold UC variant on
+    disk).
+
+  - The unique-family-name workaround (Phase 4 step 12) addresses Pango/
+    librsvg's inability to disambiguate between two subfamilies of the same
+    family. fc-match resolves "Univers LT Std" to the 57 Condensed file —
+    NOT the 59 Ultra Condensed file the headlines were designed in. SVG has
+    no per-attribute way to force the other subfamily; you need the OTF
+    metadata to advertise a distinct family name.
+
+  - The Vite cache purge (Phase 8 step 23) addresses _review/ serving stale
+    versions even after rebuild. AGENTS.md mentions this; it's a real trap.
+
+  - The "asset URLs return SVG even when the URL says PNG" note addresses a
+    confusion early in the build — sharp can read SVG from a file with no
+    extension and pick up the format from headers, but if you assume PNG
+    you'll feed sharp the wrong loader.
+
+  - The "ask before deleting legacy folders" rule (Phase 3 step 10) addresses
+    a near-miss where the user wanted some prior-campaign sizes preserved
+    even though they had no Figma equivalent in the new file.
+
+  - The "frames named one size but actually another" rule (Phase 2 step 6)
+    addresses 3 of the 16 fid26000 frames being literally named "300x250" in
+    Figma but having 320×50 dimensions. Trusting the name, not the bbox,
+    creates a banner with the wrong canvas size and the build pipeline
+    happily produces output that looks broken to the eye.
+
+HOW FID26000 RESOLVED THE FONT ISSUE
+  After investigating local SVG rendering at retina via librsvg + Univers
+  OTFs, the build settled on Figma screenshots (contentsOnly:true) for all
+  headlines and CTAs. The build-banners.js detects PNG natural dimensions
+  for each headline (which include drop-shadow padding) and offsets the
+  layer's CSS position by the symmetric shadow pad so the visible text
+  lands at the original Figma bbox. This gives:
+    - Correct Univers UC rendering (Figma's renderer, not librsvg's).
+    - Baked-in drop shadows where the design has them.
+    - 1× retina quality (acceptable for IAB ad units; matches every
+      production ad network's expectation).
+  If a future campaign requires retina-sharp text, see Phase 4 step 12 for
+  the font-installation workaround and the resvg-js alternative.
+
+KEY FILE LOCATIONS (in a working state)
+  CAMPAIGN_CODE/                              ← campaign folder, mirrors the
+                                                Figma campaign code
+  CAMPAIGN_CODE/banners/<size>-<n>/           ← one per banner
+  CAMPAIGN_CODE/banners/_banner-template/     ← reference, don't break
+  CAMPAIGN_CODE/vite.config.mjs               ← auto-discovers banners via
+                                                glob("banners/*/index.html")
+  CAMPAIGN_CODE/build-scripts/                ← Vite/template helpers
+  .context/banner-manifest.json               ← canonical source of truth
+  .context/build-banners.js                   ← generator
+  .context/figma-cache/                       ← downloaded Figma assets
+  .context/figma-responses/                   ← cached design_context outputs
+                                                (helpful for re-deriving text
+                                                specs without burning MCP calls)
+  .github/workflows/{deploy,pr-preview,release}.yml
+                                              ← all reference the campaign
+                                                folder name; update on rename
+
+MCP TOOL CHEAT SHEET
+  mcp__figma__get_metadata       file structure (no scale).
+  mcp__figma__get_design_context full CSS/JSX for a frame; the source of
+                                  truth for text specs (font, size, tracking,
+                                  drop shadow, alignment).
+  mcp__figma__get_screenshot     PNG of a node. `contentsOnly: true` strips
+                                  parent context (use for text layers).
+                                  `maxDimension` is a cap, never an upscale.
+                                  No `?scale=` query param.
+
+SHARP / LIBRSVG NOTES
+  - density: 288 → 4× rasterization of SVG. Combine with a resize to 2×
+    target for super-sharp 2× retina.
+  - `.composite([...]).extract(...)` evaluates extract first; flip the order
+    via `.png().toBuffer()` between the two.
+  - PNG inputs to `.composite()` cannot be larger than the canvas in either
+    dimension — pre-crop oversized layers with `.extract()`.
+  - SVG @font-face with data-URLs is unreliable in librsvg; system fonts via
+    fontconfig are the supported path.
+
+================================================================================
+END OF FILE
+================================================================================
