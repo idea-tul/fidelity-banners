@@ -69,6 +69,70 @@ class ReviewGenerator {
   }
 
   /**
+   * Compute the deployed bundle size for a banner from the built _review
+   * directory: the banner's own files (index.html + script.js) plus only the
+   * shared CSS/JS/img assets it actually references.
+   */
+  getBundleSize(bannerName) {
+    const bannerDir = path.join(this.reviewDir, "banners", bannerName);
+    const htmlPath = path.join(bannerDir, "index.html");
+
+    if (!fs.existsSync(htmlPath)) return 0;
+
+    let total = 0;
+    const seen = new Set();
+
+    const addFile = (filePath) => {
+      if (!filePath || seen.has(filePath)) return;
+      seen.add(filePath);
+      if (fs.existsSync(filePath)) {
+        total += fs.statSync(filePath).size;
+      }
+    };
+
+    // Walk the banner's own dir (HTML + script.js, etc.)
+    const walk = (currentPath) => {
+      const items = fs.readdirSync(currentPath);
+      for (const item of items) {
+        const itemPath = path.join(currentPath, item);
+        const stats = fs.statSync(itemPath);
+        if (stats.isDirectory()) walk(itemPath);
+        else addFile(itemPath);
+      }
+    };
+    walk(bannerDir);
+
+    // Parse HTML for shared assets under ../../assets/{css,img,js}/
+    const html = fs.readFileSync(htmlPath, "utf8");
+    const assetRegex = /(?:href|src)="\.\.\/\.\.\/assets\/([^"]+)"/g;
+    let match;
+    while ((match = assetRegex.exec(html)) !== null) {
+      addFile(path.join(this.reviewDir, "assets", match[1]));
+    }
+
+    // CSS may reference images via url(...) — pull those in too
+    const cssMatches = html.match(
+      /href="\.\.\/\.\.\/assets\/css\/([^"]+)"/g
+    ) || [];
+    for (const ref of cssMatches) {
+      const cssFile = ref.match(/css\/([^"]+)"/)[1];
+      const cssPath = path.join(this.reviewDir, "assets", "css", cssFile);
+      if (!fs.existsSync(cssPath)) continue;
+      const cssContent = fs.readFileSync(cssPath, "utf8");
+      const urlRegex = /url\((?:["']?)([^"')]+)(?:["']?)\)/g;
+      let urlMatch;
+      while ((urlMatch = urlRegex.exec(cssContent)) !== null) {
+        const ref = urlMatch[1];
+        if (/^(data:|https?:)/.test(ref)) continue;
+        // CSS lives in _review/assets/css/, so resolve relative to that dir
+        addFile(path.resolve(path.dirname(cssPath), ref));
+      }
+    }
+
+    return total;
+  }
+
+  /**
    * Get banner information
    */
   getBannerInfo() {
@@ -80,15 +144,14 @@ class ReviewGenerator {
       const width = sizeMatch ? sizeMatch[1] : "300";
       const height = sizeMatch ? sizeMatch[2] : "250";
 
-      // Calculate total file size
-      const totalBytes = this.getDirectorySize(dir);
+      const totalBytes = this.getBundleSize(name);
       const formattedSize = this.formatBytes(totalBytes);
 
       return {
         name,
         width: parseInt(width),
         height: parseInt(height),
-        path: dir,
+        path: `banners/${name}`,
         sizeBytes: totalBytes,
         sizeFormatted: formattedSize,
       };
