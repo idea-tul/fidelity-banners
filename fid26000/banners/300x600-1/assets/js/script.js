@@ -37,12 +37,12 @@ var timeline = (function MasterTimeline() {
       .set(".headline", { autoAlpha: 0, y: 14 })
       .addLabel("start")
       .to(".red-bar", { duration: 0.5, autoAlpha: 1, x: 0, ease: "power2.out" }, "start")
-      .to(".headline-3", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=0.45")
-      .to(".headline-4", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=0.6")
-      .to(".headline-3", { duration: 0.45, autoAlpha: 0, ease: "power2.in" }, "start+=1.8")
-      .to(".headline-4", { duration: 0.45, autoAlpha: 0, ease: "power2.in" }, "start+=1.85")
-      .to(".headline-1", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=2.15")
-      .to(".headline-2", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=2.3")
+      .to(".headline-4", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=0.45")
+      .to(".headline-3", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=0.6")
+      .to(".headline-4", { duration: 0.45, autoAlpha: 0, ease: "power2.in" }, "start+=1.8")
+      .to(".headline-3", { duration: 0.45, autoAlpha: 0, ease: "power2.in" }, "start+=1.85")
+      .to(".headline-2", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=2.15")
+      .to(".headline-1", { duration: 0.5, autoAlpha: 1, y: 0, ease: "power2.out" }, "start+=2.3")
       .to(".cta", { duration: 0.55, autoAlpha: 1, ease: "power2.out" }, "start+=3.6");
 
     return mainTl;
