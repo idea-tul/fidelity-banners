@@ -96,19 +96,8 @@
 .frame .nmls {
   left: 197px;
   top: 40px;
-  width: 30px;
-  height: 9px;
-  color: #ffffff;
-  font-size: 6px;
-  font-family: "Univers LT Std", "Helvetica Neue Condensed", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  text-shadow: 0 0 4px rgba(0,0,0,0.6);
-  line-height: 1;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  white-space: nowrap;
+  width: 34px;
+  height: 10px;
 }
 
 .frame .headline-1 {
