@@ -58,6 +58,7 @@ export default defineConfig({
     copyBannerScripts(),
     convertBgToJpg({ quality: 92 }),
     viteImagemin({
+      exclude: [/node_modules/, /\/nmls(?:-[^/]+)?\.png$/],
       plugins: {
         png: imageminPngquant({
           quality: [0.9, 1.0],
@@ -89,6 +90,8 @@ export default defineConfig({
   root: singleBannerDev ? bannerDirs[0].dir : ".",
   base: "./",
   build: {
+    assetsInlineLimit: (filePath) =>
+      filePath.endsWith("nmls.png") ? false : undefined,
     rollupOptions: {
       input: singleBannerDev ? resolve(bannerDirs[0].dir, "index.html") : input,
       output: {
