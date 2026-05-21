@@ -69,9 +69,7 @@
   top: 0px;
   width: 103px;
   height: 250px;
-  background: #b12024;
-  opacity: 0.75;
-  mix-blend-mode: multiply;
+  background: rgba(177, 32, 36, 0.80);
 }
 
 .frame .logo {
@@ -113,28 +111,28 @@
 
 .frame .headline-1 {
   left: 0px;
-  top: 72px;
+  top: 111px;
   width: 275px;
   height: 73px;
 }
 
 .frame .headline-2 {
-  left: 4px;
-  top: 130px;
+  left: 0px;
+  top: 72px;
   width: 255px;
   height: 51px;
 }
 
 .frame .headline-3 {
   left: 4px;
-  top: 72px;
+  top: 111px;
   width: 235px;
   height: 73px;
 }
 
 .frame .headline-4 {
   left: 4px;
-  top: 130px;
+  top: 72px;
   width: 254px;
   height: 51px;
 }

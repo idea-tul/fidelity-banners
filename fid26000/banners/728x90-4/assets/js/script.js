@@ -34,7 +34,7 @@ var timeline = (function MasterTimeline() {
     mainTl
       .set(".red-bar", { autoAlpha: 0, x: -8 })
       .set(".divider", { autoAlpha: 0, scaleY: 0.6, transformOrigin: "top" })
-      .set(".logo", { autoAlpha: 1, y: 22 })
+      .set(".logo", { autoAlpha: 1, y: 16 })
       .set(".cta", { autoAlpha: 0 })
       .set(".headline", { autoAlpha: 0, y: 14 })
       .addLabel("start")
