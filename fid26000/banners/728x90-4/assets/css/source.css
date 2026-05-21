@@ -64,19 +64,25 @@
   height: 90px;
 }
 
+.frame .bg-shadow {
+  left: 408px;
+  top: 0px;
+  width: 150px;
+  height: 90px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.7), transparent);
+}
+
 .frame .red-bar {
   left: 0px;
   top: 0px;
   width: 103px;
   height: 90px;
-  background: #b12024;
-  opacity: 0.75;
-  mix-blend-mode: multiply;
+  background: rgba(177, 32, 36, 0.80);
 }
 
 .frame .logo {
   left: 591px;
-  top: 5px;
+  top: 11px;
   width: 105px;
   height: 36px;
 }
