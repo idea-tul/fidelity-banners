@@ -1,0 +1,132 @@
+/* Edit styles in source.css; style.css is generated. */
+*, *:before, *:after { box-sizing: border-box; }
+
+#ad {
+  display: block;
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  margin: auto;
+  width: 320px;
+  height: 480px;
+  background: #fff;
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn-overlay {
+  display: block;
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+.btn-overlay:before {
+  content: "";
+  position: absolute;
+  z-index: 99;
+  inset: 0;
+  border: 1px solid #666;
+}
+
+.banner {
+  position: relative;
+  width: 320px;
+  height: 480px;
+  background: #fff;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.frame > img,
+.frame > div,
+.frame > p {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.frame .bg {
+  left: 0px;
+  top: 0px;
+  width: 320px;
+  height: 480px;
+}
+.frame .bg-shadow {
+  left: 0px;
+  top: 0px;
+  width: 320px;
+  height: 480px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(102,102,102,0.2) 100%);
+}
+.frame .red-bar {
+  left: 0px;
+  top: 386px;
+  width: 320px;
+  height: 94px;
+  background: #b12024;
+  mix-blend-mode: multiply;
+}
+.frame .red-bar-tint {
+  left: 0px;
+  top: 386px;
+  width: 320px;
+  height: 94px;
+  background: rgba(177, 32, 36, 0.50);
+}
+.frame .logo {
+  left: 150px;
+  top: 413.1px;
+  width: 126.257px;
+  height: 42.903px;
+}
+.frame .fdic {
+  left: 24px;
+  top: 402px;
+  width: 46.453px;
+  height: 49.55px;
+}
+.frame .cta {
+  left: 24px;
+  top: 136px;
+  width: 123.065px;
+  height: 35px;
+}
+.frame .nmls {
+  left: 24px;
+  top: 454px;
+  width: 47px;
+  height: 14px;
+  color: #ffffff;
+  font-size: 8.817px;
+  font-family: "Univers LT Std", "Helvetica Neue Condensed", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.1763px;
+  text-transform: uppercase;
+  text-shadow: 0 0 3.833px rgba(0,0,0,0.5);
+  line-height: 13.108px;
+  white-space: nowrap;
+}
+.frame .headline-1 {
+  left: 25.5px;
+  top: 28.0px;
+  width: 184.5px;
+  height: 42.0px;
+}
+.frame .headline-2 {
+  left: 25.5px;
+  top: 76.0px;
+  width: 257.5px;
+  height: 42.0px;
+}

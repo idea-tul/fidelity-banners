@@ -1,0 +1,124 @@
+/* Edit styles in source.css; style.css is generated. */
+*, *:before, *:after { box-sizing: border-box; }
+
+#ad {
+  display: block;
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  margin: auto;
+  width: 300px;
+  height: 50px;
+  background: #fff;
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn-overlay {
+  display: block;
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+.btn-overlay:before {
+  content: "";
+  position: absolute;
+  z-index: 99;
+  inset: 0;
+  border: 1px solid #666;
+}
+
+.banner {
+  position: relative;
+  width: 300px;
+  height: 50px;
+  background: #fff;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.frame > img,
+.frame > div,
+.frame > p {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.frame .bg {
+  left: 0px;
+  top: 0px;
+  width: 113px;
+  height: 50px;
+}
+.frame .bg-shadow {
+  left: 0px;
+  top: 0px;
+  width: 113px;
+  height: 50px;
+  background: linear-gradient(to left, rgba(0,0,0,0) 41.593%, rgba(0,0,0,0.8) 96.903%);
+}
+.frame .divider {
+  left: 217px;
+  top: 7px;
+  width: 2px;
+  height: 37.2px;
+  background: #ffffff;
+}
+.frame .logo {
+  left: 233px;
+  top: 8px;
+  width: 52.5px;
+  height: 17.8px;
+}
+.frame .fdic {
+  left: 5px;
+  top: 5px;
+  width: 29.8px;
+  height: 31.8px;
+}
+.frame .cta {
+  left: 229px;
+  top: 31px;
+  width: 59px;
+  height: 13px;
+}
+.frame .nmls {
+  left: 5px;
+  top: 39.1px;
+  width: 30px;
+  height: 14px;
+  color: #ffffff;
+  font-size: 5.683px;
+  font-family: "Univers LT Std", "Helvetica Neue Condensed", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.1137px;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  line-height: 8.45px;
+  white-space: nowrap;
+}
+.frame .headline-1 {
+  left: 120.5px;
+  top: 4.5px;
+  width: 81.0px;
+  height: 18.5px;
+}
+.frame .headline-2 {
+  left: 120.0px;
+  top: 25.5px;
+  width: 89.5px;
+  height: 18.5px;
+}

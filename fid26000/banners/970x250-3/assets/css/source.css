@@ -1,0 +1,124 @@
+/* Edit styles in source.css; style.css is generated. */
+*, *:before, *:after { box-sizing: border-box; }
+
+#ad {
+  display: block;
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  margin: auto;
+  width: 970px;
+  height: 250px;
+  background: #fff;
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn-overlay {
+  display: block;
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+.btn-overlay:before {
+  content: "";
+  position: absolute;
+  z-index: 99;
+  inset: 0;
+  border: 1px solid #666;
+}
+
+.banner {
+  position: relative;
+  width: 970px;
+  height: 250px;
+  background: #fff;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.frame > img,
+.frame > div,
+.frame > p {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.frame .bg {
+  left: 0px;
+  top: 0px;
+  width: 387px;
+  height: 250px;
+}
+.frame .bg-shadow {
+  left: 0px;
+  top: 0px;
+  width: 387px;
+  height: 250px;
+  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 43.854%);
+}
+.frame .divider {
+  left: 730px;
+  top: 31px;
+  width: 2px;
+  height: 188px;
+  background: #ffffff;
+}
+.frame .logo {
+  left: 773px;
+  top: 74px;
+  width: 148px;
+  height: 50px;
+}
+.frame .fdic {
+  left: 10px;
+  top: 9.51px;
+  width: 51.693px;
+  height: 55.139px;
+}
+.frame .cta {
+  left: 766px;
+  top: 142px;
+  width: 161px;
+  height: 33px;
+}
+.frame .nmls {
+  left: 10px;
+  top: 68.54px;
+  width: 47px;
+  height: 15px;
+  color: #ffffff;
+  font-size: 9.851px;
+  font-family: "Univers LT Std", "Helvetica Neue Condensed", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.197px;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  line-height: 14.646px;
+  white-space: nowrap;
+}
+.frame .headline-1 {
+  left: 429.0px;
+  top: 64.0px;
+  width: 237.5px;
+  height: 52.0px;
+}
+.frame .headline-2 {
+  left: 427.5px;
+  top: 125.0px;
+  width: 263.0px;
+  height: 52.0px;
+}
