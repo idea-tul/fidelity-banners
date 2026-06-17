@@ -268,14 +268,8 @@ class BannerDeployer {
    * @returns {Promise<string>} - Path to created zip file
    */
   async createMasterZip(bannerNames) {
-    // Get project name from package.json
-    const packageJsonPath = path.join(process.cwd(), "package.json");
-    let projectName = "banners";
-
-    if (fs.existsSync(packageJsonPath)) {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
-      projectName = packageJson.name.toUpperCase().replace(/^(\d+-)/, "");
-    }
+    // Name the master zip after the root project folder (e.g. "fid26000")
+    const projectName = path.basename(process.cwd());
 
     const zipPath = path.join(this.deployDir, `${projectName}.zip`);
 
